@@ -397,7 +397,11 @@
     <Compile Include="MappingModel\EqualityExtensions.cs" />
     <Compile Include="MappingModel\NaturalIdMapping.cs" />
     <Compile Include="MappingModel\Output\XmlNaturalIdWriter.cs" />
+    <Compile Include="Mapping\BaseAccessStrategy.cs" />
+    <Compile Include="Mapping\CamelCaseFieldAccessStrategy.cs" />
     <Compile Include="Mapping\NaturalIdPart.cs" />
+    <Compile Include="Mapping\NoSetterCamelCaseFieldAccessStrategy.cs" />
+    <Compile Include="Mapping\PropertyAccessStrategy.cs" />
     <Compile Include="Mapping\Providers\IExternalComponentMappingProvider.cs" />
     <Compile Include="Mapping\Providers\INaturalIdMappingProvider.cs" />
     <Compile Include="Mapping\Providers\IReferenceComponentMappingProvider.cs" />

@@ -184,7 +184,7 @@ namespace FluentNHibernate.Testing
         /// </summary>
         /// <typeparam name="TListElement">Type of list element</typeparam>
         /// <param name="expression">Property</param>
-        /// <param name="propertyValue">Value to save</param>
+        /// <param name="propertyValue">Representation to save</param>
         public static PersistenceSpecification<T> CheckComponentList<T, TListElement>(this PersistenceSpecification<T> spec,
                                                                                       Expression<Func<T, object>> expression,
                                                                                       IEnumerable<TListElement> propertyValue,

@@ -8,8 +8,10 @@ namespace FluentNHibernate.Mapping
     /// </summary>
     public class AccessStrategyBuilder
     {
-        private const string InvalidPrefixCamelCaseFieldM = "m is not a valid prefix for a CamelCase Field.";
-        private const string InvalidPrefixCamelCaseFieldMUnderscore = "m_ is not a valid prefix for a CamelCase Field.";
+        private readonly BaseAccessStrategy camelCaseFieldAccessStrategy = new CamelCaseFieldAccessStrategy();
+        private readonly BaseAccessStrategy noSetterCamelCaseFieldAccessStrategy = new NoSetterCamelCaseFieldAccessStrategy();
+        private readonly BaseAccessStrategy propertyAccessStrategy = new PropertyAccessStrategy();
+
         private const string InvalidPrefixLowerCaseFieldM = "m is not a valid prefix for a LowerCase Field.";
         private const string InvalidPrefixLowerCaseFieldMUnderscore = "m_ is not a valid prefix for a LowerCase Field.";
         private const string InvalidPrefixPascalCaseFieldNone = "None is not a valid prefix for a PascalCase Field.";
@@ -19,7 +21,7 @@ namespace FluentNHibernate.Mapping
         /// <summary>
         /// Access strategy mapping builder.
         /// </summary>
-        protected AccessStrategyBuilder(Action<string> setter)
+        public AccessStrategyBuilder(Action<string> setter)
         {
             this.setValue = setter;
         }
@@ -29,7 +31,7 @@ namespace FluentNHibernate.Mapping
         /// </summary>
         public void Property()
         {
-            setValue("property");
+            UseStrategy(Prefix.None, propertyAccessStrategy);
         }
 
         /// <summary>
@@ -62,10 +64,17 @@ namespace FluentNHibernate.Mapping
         /// <param name="prefix">Naming-strategy prefix</param>
         public void CamelCaseField(Prefix prefix)
         {
-            if (prefix == Prefix.m) throw new InvalidPrefixException(InvalidPrefixCamelCaseFieldM);
-            if (prefix == Prefix.mUnderscore) throw new InvalidPrefixException(InvalidPrefixCamelCaseFieldMUnderscore);
+            UseStrategy(prefix, camelCaseFieldAccessStrategy);
+        }
 
-            setValue("field.camelcase" + prefix.Value);
+        private void UseStrategy(Prefix prefix, BaseAccessStrategy accessStrategy)
+        {
+            string message;
+            if (!accessStrategy.ValidatePrefix(prefix, out message))
+            {
+                throw new InvalidPrefixException(message);
+            }
+            setValue(accessStrategy.BuildValue(prefix));
         }
 
         /// <summary>
@@ -85,7 +94,7 @@ namespace FluentNHibernate.Mapping
             if (prefix == Prefix.m) throw new InvalidPrefixException(InvalidPrefixLowerCaseFieldM);
             if (prefix == Prefix.mUnderscore) throw new InvalidPrefixException(InvalidPrefixLowerCaseFieldMUnderscore);
 
-            setValue("field.lowercase" + prefix.Value);
+            setValue("field.lowercase" + prefix.Representation);
         }
 
         /// <summary>
@@ -96,7 +105,7 @@ namespace FluentNHibernate.Mapping
         {
             if (prefix == Prefix.None) throw new InvalidPrefixException(InvalidPrefixPascalCaseFieldNone);
 
-            setValue("field.pascalcase" + prefix.Value);
+            setValue("field.pascalcase" + prefix.Representation);
         }
 
         /// <summary>
@@ -113,10 +122,7 @@ namespace FluentNHibernate.Mapping
         /// <param name="prefix">Naming-strategy prefix</param>
         public void ReadOnlyPropertyThroughCamelCaseField(Prefix prefix)
         {
-            if (prefix == Prefix.m) throw new InvalidPrefixException(InvalidPrefixCamelCaseFieldM);
-            if (prefix == Prefix.mUnderscore) throw new InvalidPrefixException(InvalidPrefixCamelCaseFieldMUnderscore);
-
-            setValue("nosetter.camelcase" + prefix.Value);
+            UseStrategy(prefix, noSetterCamelCaseFieldAccessStrategy);
         }
 
         /// <summary>
@@ -136,7 +142,7 @@ namespace FluentNHibernate.Mapping
             if (prefix == Prefix.m) throw new InvalidPrefixException(InvalidPrefixLowerCaseFieldM);
             if (prefix == Prefix.mUnderscore) throw new InvalidPrefixException(InvalidPrefixLowerCaseFieldMUnderscore);
 
-            setValue("nosetter.lowercase" + prefix.Value);
+            setValue("nosetter.lowercase" + prefix.Representation);
         }
 
         /// <summary>
@@ -147,7 +153,7 @@ namespace FluentNHibernate.Mapping
         {
             if (prefix == Prefix.None) throw new InvalidPrefixException(InvalidPrefixPascalCaseFieldNone);
 
-            setValue("nosetter.pascalcase" + prefix.Value);
+            setValue("nosetter.pascalcase" + prefix.Representation);
         }
 
         /// <summary>

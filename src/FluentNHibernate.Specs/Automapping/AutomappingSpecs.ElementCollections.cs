@@ -123,7 +123,7 @@ namespace FluentNHibernate.Specs.Automapping
             container.Collections.Single().Element.ShouldNotBeNull();
 
         It should_use_the_default_element_column = () =>
-            container.Collections.Single().Element.Columns.Single().Name.ShouldEqual("Value");
+            container.Collections.Single().Element.Columns.Single().Name.ShouldEqual("Representation");
 
         It should_set_the_element_type_to_the_first_generic_argument_of_the_collection_type = () =>
             container.Collections.Single().Element.Type.ShouldEqual(new TypeReference(typeof(string)));

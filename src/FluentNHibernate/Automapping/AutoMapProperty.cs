@@ -8,11 +8,25 @@ using FluentNHibernate.Mapping;
 using FluentNHibernate.MappingModel;
 using FluentNHibernate.MappingModel.ClassBased;
 using FluentNHibernate.Utils;
+using Prefix=FluentNHibernate.Mapping.Prefix;
 
 namespace FluentNHibernate.Automapping
 {
     public class AutoMapProperty : IAutoMapper
     {
+        private readonly BaseAccessStrategy[] accessStrategies = 
+            new BaseAccessStrategy[] {
+                new CamelCaseFieldAccessStrategy(), 
+                new PropertyAccessStrategy()};
+
+        private readonly Prefix[] prefixes = new[]
+        {
+            Prefix.m, 
+            Prefix.mUnderscore, 
+            Prefix.None, 
+            Prefix.Underscore
+        };
+
         private readonly IConventionFinder conventionFinder;
         private readonly AutoMappingExpressions expressions;
 
@@ -22,15 +36,32 @@ namespace FluentNHibernate.Automapping
             this.expressions = expressions;
         }
 
-        public bool MapsProperty(Member property)
+        private bool CanInferAccessType(Member property)
         {
-            if (HasExplicitTypeConvention(property))
-                return true;
+            return InferAccessType(property) != null;
+        }
 
-            if (property.CanWrite)
-                return IsMappableToColumnType(property);
+        private string InferAccessType(Member property)
+        {
+            foreach (var accessStrategy in accessStrategies)
+            {
+                foreach (var prefix in prefixes)
+                {
+                    string message;
+                    if (accessStrategy.ValidatePrefix(prefix, out message) &&
+                        accessStrategy.Matches(prefix, property))
+                    {
+                        return accessStrategy.BuildValue(prefix);
+                    }
+                }
+            }
+            return null;
+        }
 
-            return false;
+        public bool MapsProperty(Member property)
+        {            
+            return CanInferAccessType(property) && 
+                HasExplicitTypeConvention(property) || IsMappableToColumnType(property);
         }
 
         private bool HasExplicitTypeConvention(Member property)
@@ -90,6 +121,8 @@ namespace FluentNHibernate.Automapping
                 columnName = expressions.GetComponentColumnPrefix(component.Member) + columnName;
 
             mapping.AddDefaultColumn(new ColumnMapping { Name = columnName });
+            mapping.Access = InferAccessType(property);
+            
 
             if (!mapping.IsSpecified("Name"))
                 mapping.Name = mapping.Member.Name;

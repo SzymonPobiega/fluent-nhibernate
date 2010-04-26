@@ -33,7 +33,7 @@ namespace FluentNHibernate
         /// <summary>
         /// Specifies the value column used in a table of simple types. 
         /// </summary>
-        public Func<Member, string> SimpleTypeCollectionValueColumn = t => "Value";
+        public Func<Member, string> SimpleTypeCollectionValueColumn = t => "Representation";
 
         public AutoMappingExpressions()
 		{

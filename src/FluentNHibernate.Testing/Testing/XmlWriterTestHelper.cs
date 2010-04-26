@@ -102,8 +102,8 @@ namespace FluentNHibernate.Testing.Testing
                                     _sourceValue, check.Key, check.Value, attributeValue
                         );
                     //string.Equals()
-                    //rootElement.AttributeShouldEqual(check.Key, check.Value.ToString());
-                    //rootElement.Attributes[check.Key].Value.ShouldBeEqualIgnoringCase(check.Value.ToString());
+                    //rootElement.AttributeShouldEqual(check.Key, check.Representation.ToString());
+                    //rootElement.Attributes[check.Key].Representation.ShouldBeEqualIgnoringCase(check.Representation.ToString());
 
                 }
             }
