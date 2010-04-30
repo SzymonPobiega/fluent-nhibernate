@@ -8,7 +8,7 @@ using FluentNHibernate.Utils;
 
 namespace FluentNHibernate.Automapping
 {
-    public class AutoMapVersion : IAutoMapper
+    public class AutoMapVersion : IAutoMapper<IClassMapping>
     {
         private static readonly IList<string> ValidNames = new List<string> { "version", "timestamp" };
         private static readonly IList<Type> ValidTypes = new List<Type> { typeof(int), typeof(long), typeof(TimeSpan), typeof(byte[]) };
@@ -18,10 +18,8 @@ namespace FluentNHibernate.Automapping
             return ValidNames.Contains(property.Name.ToLowerInvariant()) && ValidTypes.Contains(property.PropertyType);
         }
 
-        public void Map(ClassMappingBase classMap, Member property)
+        public void Map(IClassMapping classMap, Member property)
         {
-            if (!(classMap is ClassMapping)) return;
-
             var version = new VersionMapping
             {
                 Name = property.Name,
@@ -40,7 +38,7 @@ namespace FluentNHibernate.Automapping
                 version.UnsavedValue = null;
             }
 
-            ((ClassMapping)classMap).Version = version;
+            classMap.Version = version;
         }
 
         private bool IsSqlTimestamp(Member property)

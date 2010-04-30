@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace FluentNHibernate.Testing.Automapping
 {
     public abstract class BaseAutoMapTester<T>
-        where T : IAutoMapper, new()
+        where T : IAutoMapper<T>, new()
     {
         private T mapper;
 

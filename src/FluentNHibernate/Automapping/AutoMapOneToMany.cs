@@ -1,8 +1,9 @@
+using FluentNHibernate.MappingModel;
 using FluentNHibernate.MappingModel.ClassBased;
 
 namespace FluentNHibernate.Automapping
 {
-    public class AutoMapOneToMany : IAutoMapper
+    public class AutoMapOneToMany : IAutoMapper<IHasMappedCollections>
     {
         readonly AutoSimpleTypeCollection simpleTypeCollectionStep;
         readonly AutoEntityCollection entityCollectionStep;
@@ -19,7 +20,7 @@ namespace FluentNHibernate.Automapping
                    entityCollectionStep.MapsProperty(property);
         }
 
-        public void Map(ClassMappingBase classMap, Member property)
+        public void Map(IHasMappedCollections classMap, Member property)
         {
             if (property.DeclaringType != classMap.Type)
                 return;

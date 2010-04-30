@@ -7,7 +7,7 @@ using FluentNHibernate.MappingModel.Identity;
 
 namespace FluentNHibernate.Automapping
 {
-    public class AutoMapIdentity : IAutoMapper
+    public class AutoMapIdentity : IAutoMapper<IClassMapping>
     {
         private readonly AutoMappingExpressions expressions;
 
@@ -21,17 +21,15 @@ namespace FluentNHibernate.Automapping
             return expressions.FindIdentity(property);
         }
 
-        public void Map(ClassMappingBase classMap, Member property)
+        public void Map(IClassMapping classMap, Member property)
         {
-            if (!(classMap is ClassMapping)) return;
-
             var idMapping = new IdMapping { ContainingEntityType = classMap.Type };
             idMapping.AddDefaultColumn(new ColumnMapping() { Name = property.Name });
             idMapping.Name = property.Name;
             idMapping.Type = new TypeReference(property.PropertyType);
             idMapping.Member = property;
             idMapping.SetDefaultValue("Generator", GetDefaultGenerator(property));
-            ((ClassMapping)classMap).Id = idMapping;        
+            classMap.Id = idMapping;        
         }
 
         private GeneratorMapping GetDefaultGenerator(Member property)

@@ -6,35 +6,52 @@ using FluentNHibernate.MappingModel.ClassBased;
 
 namespace FluentNHibernate.Automapping
 {
-    public class AutoMapManyToOne : IAutoMapper
+    public class AutoMapManyToOne : AutoMapFeature, IAutoMapper<IHasMappedReferences>
     {
-        private readonly Func<Member, bool> findPropertyconvention = p => (
-            p.PropertyType.Namespace != "System" && // ignore clr types (won't be entities)
-            p.PropertyType.Namespace != "System.Collections.Generic" &&
-            p.PropertyType.Namespace != "Iesi.Collections.Generic" &&
-	    !p.PropertyType.IsEnum);
+        private readonly AutoMappingExpressions expressions;
 
-        public bool MapsProperty(Member property)
+        public AutoMapManyToOne(AutoMappingExpressions expressions)
         {
-            if (property.CanWrite)
-                return findPropertyconvention(property);
-
-            return false;
+            this.expressions = expressions;
         }
 
-        public void Map(ClassMappingBase classMap, Member property)
+        
+        public bool MapsProperty(Member property)
         {
-            var manyToOne = CreateMapping(property);
+            return CanInferAccessType(property) && IsEntityType(property);
+        }
+
+        private static bool IsEntityType(Member p)
+        {
+            return
+                p.PropertyType.Namespace != "System" && // ignore clr types (won't be entities)
+                    p.PropertyType.Namespace != "System.Collections.Generic" &&
+                        p.PropertyType.Namespace != "Iesi.Collections.Generic" &&
+                            !p.PropertyType.IsEnum;
+        }
+
+
+        public void Map(IHasMappedReferences classMap, Member property)
+        {
+            var manyToOne = CreateMapping(property, classMap as ComponentMapping);
             classMap.AddReference(manyToOne);
         }
 
-        private ManyToOneMapping CreateMapping(Member property)
+        private ManyToOneMapping CreateMapping(Member property, ComponentMapping component)
         {
             var mapping = new ManyToOneMapping { Member = property };
 
+            mapping.Access = InferAccessType(property);
             mapping.SetDefaultValue(x => x.Name, property.Name);
             mapping.SetDefaultValue(x => x.Class, new TypeReference(property.PropertyType));
-            mapping.AddDefaultColumn(new ColumnMapping { Name = property.Name + "_id" });
+
+            var columnName = property.Name;
+
+            if (component != null)
+                columnName = expressions.GetComponentColumnPrefix(component.Member) + columnName;
+
+            mapping.AddDefaultColumn(new ColumnMapping { Name = columnName + "_id" });
+
 
             return mapping;
         }

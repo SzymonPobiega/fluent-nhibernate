@@ -13,6 +13,15 @@ namespace FluentNHibernate.Automapping
         /// Automatically map classes in the assembly that contains <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">Class in the assembly you want to map</typeparam>
+        public static AutoPersistenceModel AssemblyOf<T>(AutoPersistenceModel persistenceModel)
+        {
+            return Assembly(typeof(T).Assembly, null, persistenceModel);
+        }
+
+        /// <summary>
+        /// Automatically map classes in the assembly that contains <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">Class in the assembly you want to map</typeparam>
         public static AutoPersistenceModel AssemblyOf<T>()
         {
             return Assembly(typeof(T).Assembly);
@@ -45,6 +54,17 @@ namespace FluentNHibernate.Automapping
         public static AutoPersistenceModel Assembly(Assembly assembly, Func<Type, bool> where)
         {
             return Source(new AssemblyTypeSource(assembly), where);
+        }
+
+        /// <summary>
+        /// Automatically map the classes in <paramref name="assembly"/>.
+        /// </summary>
+        /// <param name="assembly">Assembly containing the classes to map</param>
+        /// <param name="where">Criteria for selecting a subset of the types in the assembly for mapping</param>
+        /// <param name="persistenceModel">Custom persistence model</param>
+        public static AutoPersistenceModel Assembly(Assembly assembly, Func<Type, bool> where, AutoPersistenceModel persistenceModel)
+        {
+            return Source(new AssemblyTypeSource(assembly), where, persistenceModel);
         }
 
         /// <summary>
@@ -81,8 +101,17 @@ namespace FluentNHibernate.Automapping
         /// <param name="where">Criteria for selecting a subset of the types in the assembly for mapping</param>
         public static AutoPersistenceModel Source(ITypeSource source, Func<Type, bool> where)
         {
-            var persistenceModel = new AutoPersistenceModel();
+            return Source(source, where, new AutoPersistenceModel());            
+        }
 
+        /// <summary>
+        /// Automatically map the classes exposed through the supplied <see cref="ITypeSource"/>.
+        /// </summary>
+        /// <param name="source"><see cref="ITypeSource"/> containing classes to map</param>
+        /// <param name="where">Criteria for selecting a subset of the types in the assembly for mapping</param>
+        /// <param name="persistenceModel">Custom persistence model</param>
+        public static AutoPersistenceModel Source(ITypeSource source, Func<Type, bool> where, AutoPersistenceModel persistenceModel)
+        {
             persistenceModel.AddTypeSource(source);
 
             if (where != null)

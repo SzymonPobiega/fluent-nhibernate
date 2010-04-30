@@ -7,7 +7,7 @@ using FluentNHibernate.MappingModel.Collections;
 
 namespace FluentNHibernate.Automapping
 {
-    public class AutoMapManyToMany : IAutoMapper
+    public class AutoMapManyToMany : IAutoMapper<IHasMappedCollections>
     {
         private readonly AutoMappingExpressions expressions;
 
@@ -48,7 +48,7 @@ namespace FluentNHibernate.Automapping
             return new BagMapping();
         }
 
-        private void ConfigureModel(Member property, ICollectionMapping mapping, ClassMappingBase classMap, Type parentSide)
+        private void ConfigureModel(Member property, ICollectionMapping mapping, IHasMappedCollections classMap, Type parentSide)
         {
             // TODO: Make the child type safer
             mapping.SetDefaultValue(x => x.Name, property.Name);
@@ -76,7 +76,7 @@ namespace FluentNHibernate.Automapping
             return mapping;
         }
 
-        private void SetKey(Member property, ClassMappingBase classMap, ICollectionMapping mapping)
+        private void SetKey(Member property, IHasMappedCollections classMap, ICollectionMapping mapping)
         {
             var columnName = property.DeclaringType.Name + "_id";
 
@@ -91,7 +91,7 @@ namespace FluentNHibernate.Automapping
             mapping.SetDefaultValue(x => x.Key, key);
         }
 
-        public void Map(ClassMappingBase classMap, Member property)
+        public void Map(IHasMappedCollections classMap, Member property)
         {
             var inverseProperty = GetInverseProperty(property);
             var parentSide = expressions.GetParentSideForManyToMany(property.DeclaringType, inverseProperty.DeclaringType);

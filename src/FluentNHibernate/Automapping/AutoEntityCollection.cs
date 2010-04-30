@@ -5,7 +5,7 @@ using FluentNHibernate.Utils;
 
 namespace FluentNHibernate.Automapping
 {
-    public class AutoEntityCollection : IAutoMapper
+    public class AutoEntityCollection : IAutoMapper<IHasMappedCollections>
     {
         readonly AutoMappingExpressions expressions;
         readonly AutoKeyMapper keys;
@@ -24,7 +24,7 @@ namespace FluentNHibernate.Automapping
                 property.PropertyType.Namespace.In("System.Collections.Generic", "Iesi.Collections.Generic");
         }
 
-        public void Map(ClassMappingBase classMap, Member property)
+        public void Map(IHasMappedCollections classMap, Member property)
         {
             if (property.DeclaringType != classMap.Type)
                 return;
@@ -41,7 +41,7 @@ namespace FluentNHibernate.Automapping
             classMap.AddCollection(mapping);  
         }
 
-        private void SetRelationship(Member property, ClassMappingBase classMap, ICollectionMapping mapping)
+        private void SetRelationship(Member property, IMapping classMap, ICollectionMapping mapping)
         {
             var relationship = new OneToManyMapping
             {
